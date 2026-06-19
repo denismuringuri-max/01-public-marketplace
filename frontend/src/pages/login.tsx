@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
+'use client';
 
-export default function Login() {
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { apiClient } from '../services/api';
+import { useAuthStore } from '../store/authStore';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+  const setError = useAuthStore((state) => state.setError);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setLocalError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // TODO: Implement login API call
-    console.log('Login attempt:', { email, password });
-    
-    setLoading(false);
+    setLocalError('');
+
+    try {
+      const result = await apiClient.login(email, password);
+      setUser(result.user);
+      router.push('/');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Login failed. Please try again.';
+      setLocalError(errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow p-8">
-        <h2 className="text-center text-3xl font-bold text-gray-900 mb-6">
-          Sign In
-        </h2>
+        <h2 className="text-center text-3xl font-bold text-gray-900 mb-6">Sign In</h2>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
@@ -71,16 +93,24 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 transition"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
+        {/* Test Credentials */}
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+          <p className="text-sm font-semibold text-blue-900 mb-2">Test Credentials:</p>
+          <p className="text-xs text-blue-700">Buyer: buyer@miraa.com / Buyer@123</p>
+          <p className="text-xs text-blue-700">Seller: seller@miraa.com / Seller@123</p>
+          <p className="text-xs text-blue-700">Admin: admin@miraa.com / Admin@123</p>
+        </div>
+
         {/* Sign Up Link */}
-        <p className="text-center mt-4 text-gray-600">
+        <p className="text-center mt-6 text-gray-600">
           Don't have an account?{' '}
-          <Link href="/register" className="text-indigo-600 hover:text-indigo-500">
+          <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-semibold">
             Sign Up
           </Link>
         </p>
