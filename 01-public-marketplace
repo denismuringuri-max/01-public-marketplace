@@ -1,0 +1,12 @@
+mobile/buyer-app/.gitkeep
+mobile/seller-app/.gitkeep
+mobile/transporter-app/.gitkeep
+web/.gitkeep
+public-api/.gitkeep
+ui-components/.gitkeep
+auth/.gitkeep
+orders/.gitkeep
+reviews/.gitkeep
+notifications/.gitkeep
+geo-location/.gitkeep
+analytics/.gitkeep
